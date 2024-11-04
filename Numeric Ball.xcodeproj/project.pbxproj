@@ -22,10 +22,33 @@
 		7AD140EE2CD86B3E00B5CC04 /* Numeric Ball */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Numeric Ball"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		7AD1411A2CD882DB00B5CC04 /* Exceptions for "Numeric Ball" folder in "Numeric Ball" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				NumericBallController/main.swift,
+			);
+			target = 7AD140ED2CD86B3E00B5CC04 /* Numeric Ball */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		7AD140F02CD86B3E00B5CC04 /* Numeric Ball */ = {
+		7AD140FE2CD86D9300B5CC04 /* ProjectGoal */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ProjectGoal;
+			sourceTree = "<group>";
+		};
+		7AD141182CD882DB00B5CC04 /* Numeric Ball */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7AD1411A2CD882DB00B5CC04 /* Exceptions for "Numeric Ball" folder in "Numeric Ball" target */,
+			);
 			path = "Numeric Ball";
+			sourceTree = "<group>";
+		};
+		7AD1411C2CD882F600B5CC04 /* Test */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Test;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -44,7 +67,9 @@
 		7AD140E52CD86B3E00B5CC04 = {
 			isa = PBXGroup;
 			children = (
-				7AD140F02CD86B3E00B5CC04 /* Numeric Ball */,
+				7AD140FE2CD86D9300B5CC04 /* ProjectGoal */,
+				7AD141182CD882DB00B5CC04 /* Numeric Ball */,
+				7AD1411C2CD882F600B5CC04 /* Test */,
 				7AD140EF2CD86B3E00B5CC04 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -73,7 +98,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				7AD140F02CD86B3E00B5CC04 /* Numeric Ball */,
+				7AD140FE2CD86D9300B5CC04 /* ProjectGoal */,
 			);
 			name = "Numeric Ball";
 			packageProductDependencies = (
