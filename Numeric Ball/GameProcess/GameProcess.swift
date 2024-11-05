@@ -19,7 +19,7 @@ final class GameProcess {
     
     //스트라이크와 볼의 수를 계산 후 반환
     func gameProcess(receive: NumToIndex) -> StrikeAndBall {
-        //딕셔너리에 해당하는 키가 없을 경우 옵셔널이 반환되는 점을 활용하여 반복문 2번을 사용하는 것보다 시간복잡도를 낮출 수 있었음.
+        //딕셔너리에 해당하는 키가 없을 경우 nil이 반환되는 점을 활용하여 반복문 2번을 사용하는 것보다 시간복잡도를 낮출 수 있었음.
         self.gameData.strikeAndBall = (strike: 0, ball: 0)
         for num in receive.keys {
             if let matchedValue = gameData.correctAnswer[num] {

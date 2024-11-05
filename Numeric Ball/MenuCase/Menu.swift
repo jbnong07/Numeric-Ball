@@ -9,5 +9,4 @@ enum Menu {
     case gameStart
     case gameHistory
     case gameExit
-    case invalidMenu
 }

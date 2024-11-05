@@ -6,7 +6,8 @@
 //
 
 class Receiver {
-    func receiveMenuSelect() -> Menu {
+    //지정된 입력이 없을 경우 에러 발생
+    func receiveMenuSelect() throws -> Menu {
         let input: String? = readLine()
         
         if let validInput = input {
@@ -18,11 +19,11 @@ class Receiver {
             case "3", "q", "Q":
                 return .gameExit
             default:
-                return .invalidMenu
+                throw ErrorCase.inputInvalidMenu //알맞은 입력이 아닌 경우
             }
         } else {
             //입력창이 강제로 종료된 경우로 사용될 일이 매우 희박한 케이스.
-            return .invalidMenu
+            throw ErrorCase.inputNil
         }
     }
     

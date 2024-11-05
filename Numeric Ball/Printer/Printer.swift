@@ -27,8 +27,6 @@ final class Printer {
             print("\n< 게임 기록입니다! >")
         case .gameExit:
             print("\n< 게임을 종료합니다! >")
-        case .invalidMenu:
-            print("\n< 잘못된 메뉴 입력입니다! >")
         }
     }
     
@@ -69,5 +67,22 @@ final class Printer {
     
     func printContinuePressAnyKey(){
         print("메뉴로 돌아가려면 아무 키나 입력하세요.",terminator: "")
+    }
+    
+    func printErrorMessage(_ errorCase: ErrorCase) {
+        switch errorCase {
+        case .inputDuplicateNumber:
+            print("")
+        case .inputInvalidMenu:
+            print("< 선택할 수 없는 메뉴를 입력하셨습니다! >\n")
+        case .inputNil:
+            print("")
+        case .inputString:
+            print("")
+        case .inputZeroToFirstIndex:
+            print("")
+        case .undefinedError:
+            print("< 알 수 없는 오류가 발생했습니다! >\n")
+        }
     }
 }
