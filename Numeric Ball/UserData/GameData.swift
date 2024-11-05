@@ -5,7 +5,7 @@
 //  Created by 박진홍 on 11/4/24.
 //
 /*
- 필요한 저장 프로퍼티
+ 필요한 프로퍼티
     정답
     사용자의 입력
     해당 게임 회차
@@ -26,22 +26,25 @@
 import Foundation
 
 struct GameData {
-    var answer: Int
-    var userInput: String?
-    var inputCount: Int
-}
-
-final class GameHistory {
-    static let shared = GameHistory()
+    private var answer: NumToIndex = [:]
+    private var userAnswer: NumToIndex = [:]
+    private var inputCount: Int = 0
+    private var strikeAndBall: StrikeAndBall = (strike: 0, ball: 0)
     
-    private init(){}
+    mutating func setCorrectAnswer(as answer: NumToIndex) {
+        self.answer = answer
+    }
     
-    //캡슐화를 위한 접근수준 설정
-    //회차 기록은 배열의 인덱스로 대체할 수 있으므로 시행횟수만 담는 배열로 타입 지정
-    private var history: [Int] = []
+    mutating func setReceiveAnswer(from answer: NumToIndex) {
+        self.userAnswer = answer
+    }
     
-    func addGameHistory(_ count: Int) {
-        //현재 게임 상태를 체크하는 구문 필요
-        history.append(count)
+    mutating func setStrikeAndBall(as strikeAndBall: StrikeAndBall) {
+        self.strikeAndBall = strikeAndBall
+    }
+    
+    func getStrikeAndBall() -> StrikeAndBall {
+        return strikeAndBall
     }
 }
+
