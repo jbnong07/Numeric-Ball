@@ -48,6 +48,7 @@ class NumericBall{
         self.answerGenerator = generator
         self.gameProcesser = processer
     }
+    
     //사용자가 사용하게 될 게임 시작 메서드
     func gameStart() {
         var gamePlaying: Bool = true
@@ -70,20 +71,34 @@ class NumericBall{
                 while !isCorrectAnswer {
                     //입력 요청 출력
                     printer.printAnswerRequest()
-                    //정답과 입력 비교 진행
-                    let strikeAndBall = gameProcesser.gameProcess(
-                        receive: receiver.receiveAnswer()
-                    )
-                    //정답에 따른 문구 출력
-                    printer.printStrikeAndBall(
-                        to: strikeAndBall
-                    )
-                    tryCount += 1
-                    //홈런을 치는 경우 프로세스 종료
-                    if strikeAndBall == (strike: 4, ball: 0) {
-                        printer.printTryCount(to: tryCount)
-                        isCorrectAnswer = true
+                    //게임 진행 중 q를 누를 시 게임 중단처리를 위한 검사
+                    if let receiveAnswer = receiver.receiveAnswer() {
+                        //정답과 비교 시작
+                        let strikeAndBall = gameProcesser.gameProcess(
+                            receive: receiveAnswer
+                        )
+                        //정답에 따른 문구 출력
+                        printer.printStrikeAndBall(
+                            to: strikeAndBall
+                        )
+                        tryCount += 1
+                        //홈런을 치는 경우 프로세스 종료
+                        if strikeAndBall == (strike: 4, ball: 0) {
+                            printer.printTryCount(to: tryCount)
+                            isCorrectAnswer = true
+                        }
+                    } else {
+                        //게임 중단 문구 출력
+                        GameStatus.shared.updateStatus(to: .gameStop)
+                        break
                     }
+                    
+                }
+                //게임 중단 상태일 시 처음으로 돌아감
+                if GameStatus.shared.gameStatus == .gameStop {
+                    GameStatus.shared.updateStatus(to: .inGameMenu)
+                    printer.printGameStopMessage()
+                    continue
                 }
                 //게임 종료로 스테이터스 설정
                 GameStatus.shared.updateStatus(to: .gameEnd)
@@ -92,14 +107,22 @@ class NumericBall{
                 //시도 횟수 초기화
                 tryCount = 0
                 //메뉴 선택으로 스테이터스 설정
+                printer.printContinuePressAnyKey()
+                receiver.receiveContinue()
+                GameStatus.shared.updateStatus(to: .inGameMenu)
+            
             case .gameHistory:
                 //입장한 메뉴 출력
                 printer.printSelectCheck(to: .gameHistory)
                 printer.printGameHistory(gameHistory.getHistory())
+                printer.printContinuePressAnyKey()
+                receiver.receiveContinue()
+            
             case .gameExit:
                 //입장한 메뉴 출력
                 printer.printSelectCheck(to: .gameExit)
                 gamePlaying = false
+            
             case .invalidMenu:
                 //잘못된 입력 출력
                 printer.printSelectCheck(to: .invalidMenu)

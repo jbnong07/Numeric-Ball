@@ -39,12 +39,12 @@ final class Printer {
         } else if strikeAndBall == (strike: 0, ball: 0) {
             print("Out.\n")
         } else {
-            print("\(strikeAndBall.strike)S, \(strikeAndBall.ball)B\n")
+            print("[\(strikeAndBall.strike)S, \(strikeAndBall.ball)B]\n")
         }
     }
     
     func printAnswerRequest() {
-        print("정답을 입력해주세요.(0으로 시작하지 않고 중복되지 않는 4자리의 수)")
+        print("정답을 입력해주세요.(0으로 시작하지 않고 중복되지 않는 4자리의 수) / q를 눌러 포기할 수 있습니다.")
         print("ㄴ",terminator: "")
     }
     
@@ -61,5 +61,13 @@ final class Printer {
             rankingCount += 1
         }
         print("")
+    }
+    
+    func printGameStopMessage() {
+        print("\n게임을 포기합니다.\n")
+    }
+    
+    func printContinuePressAnyKey(){
+        print("메뉴로 돌아가려면 아무 키나 입력하세요.",terminator: "")
     }
 }

@@ -15,7 +15,7 @@ class Receiver {
                 return .gameStart
             case "2":
                 return .gameHistory
-            case "q", "Q":
+            case "3", "q", "Q":
                 return .gameExit
             default:
                 return .invalidMenu
@@ -26,14 +26,20 @@ class Receiver {
         }
     }
     
-    func receiveAnswer() -> NumToIndex{
+    func receiveAnswer() -> NumToIndex?{
+//예외처리를 위한 코드 개선 필수
         let input = readLine()?.map{
             Int(String($0))!
         }
+
         var answer: NumToIndex = [:]
         for i in 1...input!.count {
             answer[input![i-1]] = i
         }
         return answer
+    }
+    
+    func receiveContinue() {
+        _ = readLine()
     }
 }

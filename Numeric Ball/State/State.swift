@@ -24,7 +24,7 @@ extension GameStatus {
         case inGameMenu
         case gamePlaying
         case gameEnd
-        
+        case gameStop
         
     }
 }
