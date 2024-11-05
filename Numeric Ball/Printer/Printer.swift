@@ -32,12 +32,12 @@ final class Printer {
     
     func printStrikeAndBall(to strikeAndBall: StrikeAndBall) {
         if strikeAndBall.strike == 4 {
-            print("\n⚾︎!⚾︎!⚾︎!HomeRun!⚾︎!⚾︎!⚾︎\n")
+            print("\n< ⚾︎!⚾︎!⚾︎!HomeRun!⚾︎!⚾︎!⚾︎ >\n")
 
         } else if strikeAndBall == (strike: 0, ball: 0) {
-            print("Out.\n")
+            print("\n< Out >\n")
         } else {
-            print("[\(strikeAndBall.strike)S, \(strikeAndBall.ball)B]\n")
+            print("\n< \(strikeAndBall.strike)S, \(strikeAndBall.ball)B >\n")
         }
     }
     
@@ -47,7 +47,7 @@ final class Printer {
     }
     
     func printTryCount(to tryCount: Int) {
-        print("이번 라운드 성적은 \(tryCount)회입니다.\n")
+        print("\n< 이번 라운드 성적은 \(tryCount)회입니다. >")
     }
     
     func printGameHistory(_ rangking: Ranking){
@@ -62,7 +62,7 @@ final class Printer {
     }
     
     func printGameStopMessage() {
-        print("\n게임을 포기합니다.\n")
+        print("\n< 게임을 포기합니다. >\n")
     }
     
     func printContinuePressAnyKey(){
@@ -72,17 +72,19 @@ final class Printer {
     func printErrorMessage(_ errorCase: ErrorCase) {
         switch errorCase {
         case .inputDuplicateNumber:
-            print("")
+            print("\n< 중복된 숫자는 불가능합니다! >\n")
         case .inputInvalidMenu:
-            print("< 선택할 수 없는 메뉴를 입력하셨습니다! >\n")
+            print("\n< 선택할 수 없는 메뉴를 입력하셨습니다! >\n")
         case .inputNil:
-            print("")
+            print("\n< 입력에 오류가 발생했습니다! >\n")
         case .inputString:
-            print("")
+            print("\n< 정수를 정확히 입력해주세요! >\n")
         case .inputZeroToFirstIndex:
-            print("")
+            print("\n< 0으로 시작할 수 없습니다! >\n")
         case .undefinedError:
-            print("< 알 수 없는 오류가 발생했습니다! >\n")
+            print("\n< 알 수 없는 오류가 발생했습니다! >\n")
+        case .inputNotFourLength:
+            print("\n< 4자리를 입력해주세요! >\n")
         }
     }
 }
