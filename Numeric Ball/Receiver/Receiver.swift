@@ -6,23 +6,34 @@
 //
 
 class Receiver {
-    func receiveMenuSelect() -> String {
+    func receiveMenuSelect() -> Menu {
         let input: String? = readLine()
         
         if let validInput = input {
             switch validInput {
             case "1":
-                return "gameStart"
+                return .gameStart
             case "2":
-                return "gameHistory"
+                return .gameHistory
             case "q", "Q":
-                return "gameExit"
+                return .gameExit
             default:
-                return ""//에러처리
+                return .invalidMenu
             }
         } else {
-            //빈 칸입력에 대한 오류 발생 후 다시 입력받기
+            //입력창이 강제로 종료된 경우로 사용될 일이 매우 희박한 케이스.
+            return .invalidMenu
         }
     }
     
+    func receiveAnswer() -> NumToIndex{
+        let input = readLine()?.map{
+            Int(String($0))!
+        }
+        var answer: NumToIndex = [:]
+        for i in 1...input!.count {
+            answer[input![i-1]] = i
+        }
+        return answer
+    }
 }

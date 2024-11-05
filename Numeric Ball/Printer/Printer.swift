@@ -12,19 +12,54 @@
  */
 final class Printer {
     func printMenu() {
+        print("*****************************************")
         print("원하시는 메뉴를 선택하세요.")
-        print("1. 게임 시작  /  2. 게임 기록  /  q. 게임 나가기")
+        print("1. ⚾︎게임 시작  /  2. ✎게임 기록  /  q. 게임 나가기 ")
+        print("*****************************************")
+        print("ㄴ",terminator: "")
     }
     
-    func printSelectCheck(to menu: String) {
-        if menu == "gameStart" {
-            print("게임을 시작합니다!")
-        } else if menu == "gameHistory" {
-            print("게임 기록을 확인합니다!")
-        } else if menu == "gameExit" {
-            print("게임을 종료합니다!")
-        } else {
-            
+    func printSelectCheck(to menu: Menu) {
+        switch menu {
+        case .gameStart:
+            print("\n< 게임을 시작합니다! >")
+        case .gameHistory:
+            print("\n< 게임 기록입니다! >")
+        case .gameExit:
+            print("\n< 게임을 종료합니다! >")
+        case .invalidMenu:
+            print("\n< 잘못된 메뉴 입력입니다! >")
         }
+    }
+    
+    func printStrikeAndBall(to strikeAndBall: StrikeAndBall) {
+        if strikeAndBall.strike == 4 {
+            print("\n⚾︎!⚾︎!⚾︎!HomeRun!⚾︎!⚾︎!⚾︎\n")
+
+        } else if strikeAndBall == (strike: 0, ball: 0) {
+            print("Out.\n")
+        } else {
+            print("\(strikeAndBall.strike)S, \(strikeAndBall.ball)B\n")
+        }
+    }
+    
+    func printAnswerRequest() {
+        print("정답을 입력해주세요.(0으로 시작하지 않고 중복되지 않는 4자리의 수)")
+        print("ㄴ",terminator: "")
+    }
+    
+    func printTryCount(to tryCount: Int) {
+        print("이번 라운드 성적은 \(tryCount)회입니다.\n")
+    }
+    
+    func printGameHistory(_ rangking: Ranking){
+        let sortedRanking = rangking.sorted { $0.key < $1.key}
+        var rankingCount: Int = 1
+        
+        for (reps, round) in sortedRanking {
+            print("\(rankingCount)등: \(round)회차 \(reps)회")
+            rankingCount += 1
+        }
+        print("")
     }
 }

@@ -38,6 +38,7 @@
 				NumericBallController/main.swift,
 				Printer/Printer.swift,
 				Receiver/Receiver.swift,
+				State/State.swift,
 				Typealias/Typealias.swift,
 				UserData/GameData.swift,
 				UserData/GameHistory.swift,

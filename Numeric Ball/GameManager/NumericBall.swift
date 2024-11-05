@@ -22,36 +22,88 @@
  4. 홈런이 나오면 기록에 시행횟수를 추가하고 종료한다.
  5. 게임 중 언제든 q를 입력 받으면 게임을 중단한다.
  */
-protocol GameManagerProtocol{
-    
-}
-
 
 
 class NumericBall{
     private let receiver: Receiver
     private let printer: Printer
+    //랜덤한 정답을 만들어주는 클래스
     private let answerGenerator: GeneratorProtocol
+    //게임을 진행하여 스트라이크와 볼을 알려주는 클래스
     private let gameProcesser: GameProcess
-    private var gameHistory: GameHistory
+    //게임 기록을 관리할 수 있는 클래스
+    private var gameHistory: GameHistory = GameHistory()
+    //현재 회차를 담을 변수
+    private var round: Int = 0
+    //정답까지의 시도 횟수를 표시
+    private var tryCount: Int = 0
     
-    init(receiver: Receiver = Receiver(), printer: Printer = Printer(), generator: GeneratorProtocol = AnswerGenerator(),processer: GameProcess = GameProcess()){
+    //초기화 시 인스턴스 주입
+    init(receiver: Receiver = Receiver(),
+         printer: Printer = Printer(),
+         generator: GeneratorProtocol = AnswerGenerator(),
+         processer: GameProcess = GameProcess()){
         self.receiver = receiver
         self.printer = printer
         self.answerGenerator = generator
         self.gameProcesser = processer
     }
-    
+    //사용자가 사용하게 될 게임 시작 메서드
     func gameStart() {
-        var isContinue: Bool = true
-        
-        while isContinue {
-            //게임 메뉴 고르기 프린트
+        var gamePlaying: Bool = true
+        while gamePlaying {
+            //게임 메뉴 고르기 시작
+            printer.printMenu()
             //게임 메뉴 리시브
-            //게임 시작
-            //정답 데이터 설정
-            //인풋
-            
+            switch receiver.receiveMenuSelect(){
+            case .gameStart:
+                //게임 스테이터스 설정
+                GameStatus.shared.updateStatus(to: .gamePlaying)
+                //라운드 조정
+                self.round += 1
+                //입장한 메뉴 출력
+                printer.printSelectCheck(to: .gameStart)
+                //정답 생성기로 정답을 생성.
+                gameProcesser.setCorrectAnswer(as: answerGenerator.generateAnswer())
+                //정답이 맞다면 반복을 중단하도록 네이밍하고 반복문에 !를 붙임
+                var isCorrectAnswer: Bool = false
+                while !isCorrectAnswer {
+                    //입력 요청 출력
+                    printer.printAnswerRequest()
+                    //정답과 입력 비교 진행
+                    let strikeAndBall = gameProcesser.gameProcess(
+                        receive: receiver.receiveAnswer()
+                    )
+                    //정답에 따른 문구 출력
+                    printer.printStrikeAndBall(
+                        to: strikeAndBall
+                    )
+                    tryCount += 1
+                    //홈런을 치는 경우 프로세스 종료
+                    if strikeAndBall == (strike: 4, ball: 0) {
+                        printer.printTryCount(to: tryCount)
+                        isCorrectAnswer = true
+                    }
+                }
+                //게임 종료로 스테이터스 설정
+                GameStatus.shared.updateStatus(to: .gameEnd)
+                //히스토리에 이번 회차와 반복 수 입력
+                gameHistory.addGameHistory(reps: tryCount, round: round)
+                //시도 횟수 초기화
+                tryCount = 0
+                //메뉴 선택으로 스테이터스 설정
+            case .gameHistory:
+                //입장한 메뉴 출력
+                printer.printSelectCheck(to: .gameHistory)
+                printer.printGameHistory(gameHistory.getHistory())
+            case .gameExit:
+                //입장한 메뉴 출력
+                printer.printSelectCheck(to: .gameExit)
+                gamePlaying = false
+            case .invalidMenu:
+                //잘못된 입력 출력
+                printer.printSelectCheck(to: .invalidMenu)
+            }
         }
     }
 }

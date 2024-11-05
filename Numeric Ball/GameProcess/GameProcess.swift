@@ -12,23 +12,21 @@
 final class GameProcess {
     private var gameData: AnswerData = AnswerData()
     
-    //비교할 정답을 초기화 시점에서 받아온다
-    init(correctAnswer: NumToIndex){
-        self.gameData.correctAnswer = correctAnswer
+    //정답 생성기로 생성된 값을 전달받는 메서드
+    func setCorrectAnswer(as answer: NumToIndex) {
+        self.gameData.correctAnswer = answer
     }
     
-    
-    func gameProcess(answer: NumToIndex, receive: NumToIndex, inputCount: inout Int) -> StrikeAndBall {
-        var strike: Int = 0
-        var ball: Int = 0
-        
+    //스트라이크와 볼의 수를 계산 후 반환
+    func gameProcess(receive: NumToIndex) -> StrikeAndBall {
         //딕셔너리에 해당하는 키가 없을 경우 옵셔널이 반환되는 점을 활용하여 반복문 2번을 사용하는 것보다 시간복잡도를 낮출 수 있었음.
+        self.gameData.strikeAndBall = (strike: 0, ball: 0)
         for num in receive.keys {
-            if let matchedValue = answer[num] {
+            if let matchedValue = gameData.correctAnswer[num] {
                 if matchedValue == receive[num] {
-                    self.gameData.strikeAndBall = (strike: strike + 1, ball: ball)
+                    self.gameData.strikeAndBall.strike += 1
                 } else {
-                    self.gameData.strikeAndBall = (strike: strike, ball: ball + 1)
+                    self.gameData.strikeAndBall.ball += 1
                 }
             }
         }
