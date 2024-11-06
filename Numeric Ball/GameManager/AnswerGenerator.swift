@@ -57,3 +57,11 @@ class AnswerGenerator: GeneratorProtocol {
         return answer
     }
 }
+
+class ArrayAnswerGenerator: GeneratorProtocol {
+    func generateAnswer() -> NumToIndex {
+        var answer: NumToIndex = [:]
+        //배열을 이용한 알고리즘
+        return answer
+    }
+}

@@ -10,34 +10,39 @@
  또는 클래스별 프린터를 만들어서 각 기능에 맞는 프린터를 주입할지 고민되었음.
  그러나 각 클래스에서 프린터를 가져서 클래스 내부에서 출력 작업이 끝나면 사용할 땐 편하긴 하지만 너무 코드가 복잡해질 거 같다는 생각이 듬
  */
-final class Printer {
-    func printMenu() {
-        print("*****************************************")
-        print("원하시는 메뉴를 선택하세요.")
-        print("1. ⚾︎게임 시작  /  2. ✎게임 기록  /  q. 게임 나가기 ")
-        print("*****************************************")
-        print("ㄴ",terminator: "")
-    }
-    
-    func printSelectCheck(to menu: Menu) {
+final class Printer {    
+    func printStatus(to menu: GameStatus.Status) {
         switch menu {
-        case .gameStart:
-            print("\n< 게임을 시작합니다! >")
-        case .gameHistory:
+        case .menu(.inGameMenu):
+            print("*****************************************")
+            print("원하시는 메뉴를 선택하세요.")
+            print("1. ⚾︎게임 시작  /  2. ✎게임 기록  /  q. 게임 나가기 ")
+            print("*****************************************")
+            print("ㄴ",terminator: "")
+        case .menu(.gameHistory):
             print("\n< 게임 기록입니다! >")
-        case .gameExit:
+        case .menu(.gameOff):
             print("\n< 게임을 종료합니다! >")
+            
+        case .play(.gameStart):
+            print("\n< 새로운 정답 생성 중! >")
+        case .play(.gamePlay):
+            print("\n< 게임을 진행합니다! >")
+        case .play(.gameEnd):
+            print("\n< 라운드가 종료됐습니다! >")
+        case .play(.gameStop):
+            print("\n< 게임을 중단합니다! >")
         }
     }
     
     func printStrikeAndBall(to strikeAndBall: StrikeAndBall) {
         if strikeAndBall.strike == 4 {
-            print("\n< ⚾︎!⚾︎!⚾︎!HomeRun!⚾︎!⚾︎!⚾︎ >\n")
+            print("\n< ⚾︎!⚾︎!⚾︎!HomeRun!⚾︎!⚾︎!⚾︎ >")
 
         } else if strikeAndBall == (strike: 0, ball: 0) {
-            print("\n< Out >\n")
+            print("\n< Out >")
         } else {
-            print("\n< \(strikeAndBall.strike)S, \(strikeAndBall.ball)B >\n")
+            print("\n< \(strikeAndBall.strike)S, \(strikeAndBall.ball)B >")
         }
     }
     
@@ -61,10 +66,6 @@ final class Printer {
         print("")
     }
     
-    func printGameStopMessage() {
-        print("\n< 게임을 포기합니다. >\n")
-    }
-    
     func printContinuePressAnyKey(){
         print("메뉴로 돌아가려면 아무 키나 입력하세요.",terminator: "")
     }
@@ -72,19 +73,23 @@ final class Printer {
     func printErrorMessage(_ errorCase: ErrorCase) {
         switch errorCase {
         case .inputDuplicateNumber:
-            print("\n< 중복된 숫자는 불가능합니다! >\n")
+            print("\n< 중복된 숫자는 불가능합니다! >")
         case .inputInvalidMenu:
-            print("\n< 선택할 수 없는 메뉴를 입력하셨습니다! >\n")
+            print("\n< 선택할 수 없는 메뉴를 입력하셨습니다! >")
         case .inputNil:
-            print("\n< 입력에 오류가 발생했습니다! >\n")
+            print("\n< 입력에 오류가 발생했습니다! >")
         case .inputString:
-            print("\n< 정수를 정확히 입력해주세요! >\n")
+            print("\n< 정수를 정확히 입력해주세요! >")
         case .inputZeroToFirstIndex:
-            print("\n< 0으로 시작할 수 없습니다! >\n")
+            print("\n< 0으로 시작할 수 없습니다! >")
         case .undefinedError:
-            print("\n< 알 수 없는 오류가 발생했습니다! >\n")
+            print("\n< 알 수 없는 오류가 발생했습니다! >")
         case .inputNotFourLength:
-            print("\n< 4자리를 입력해주세요! >\n")
+            print("\n< 4자리를 입력해주세요! >")
         }
+    }
+    
+    func printGameOffError() {
+        print("게임 종료에 실패했습니다!")
     }
 }
