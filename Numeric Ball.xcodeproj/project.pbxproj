@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		7AD141372CD9E21500B5CC04 /* Numeric Ball in Sources */ = {isa = PBXBuildFile; fileRef = 7AD140EE2CD86B3E00B5CC04 /* Numeric Ball */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		7AD140EC2CD86B3E00B5CC04 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -26,15 +30,39 @@
 		7AD1411A2CD882DB00B5CC04 /* Exceptions for "Numeric Ball" folder in "Numeric Ball" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				EnumDefined/ErrorCase.swift,
+				EnumDefined/MenuCase.swift,
+				GameManager/AnswerGenerator.swift,
+				GameManager/GameProcess.swift,
+				GameManager/NumericBall.swift,
 				NumericBallController/main.swift,
+				PrintAndReceive/Printer.swift,
+				PrintAndReceive/Receiver.swift,
+				State/State.swift,
+				Typealias/Typealias.swift,
+				UserData/GameData.swift,
+				UserData/GameHistory.swift,
 			);
 			target = 7AD140ED2CD86B3E00B5CC04 /* Numeric Ball */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		7AD141382CD9E21500B5CC04 /* Exceptions for "ProjectGoal" folder in "Compile Sources" phase from "Numeric Ball" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 7AD140EA2CD86B3E00B5CC04 /* Sources */;
+			membershipExceptions = (
+				"Project Goal.md",
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		7AD140FE2CD86D9300B5CC04 /* ProjectGoal */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7AD141382CD9E21500B5CC04 /* Exceptions for "ProjectGoal" folder in "Compile Sources" phase from "Numeric Ball" target */,
+			);
 			path = ProjectGoal;
 			sourceTree = "<group>";
 		};
@@ -146,6 +174,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7AD141372CD9E21500B5CC04 /* Numeric Ball in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
