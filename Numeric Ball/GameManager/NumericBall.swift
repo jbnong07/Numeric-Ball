@@ -46,34 +46,39 @@ class NumericBall{
     }
     //함수가 너무 길어 개선할 여지가 있다고 판단됨
     func gameStart() {
-        while gameStatus.status == .inGameMenu {
-            printer.printMenu()//게임 메뉴 고르기 시작
+        while gameStatus.status != .menu(.gameOff) {//게임 종료를 선택하기 전까지 반복
             do {
-                let menuInput = try receiver.receiveMenuSelect()//게임 메뉴 리시브
-                printer.printSelectCheck(to: menuInput)//입장한 메뉴 출력
-                switch menuInput{
-                case .gameStart:
-                    gameStatus.updateStatus(to: .gamePlaying)//게임 스테이터스 설정
-                    roundInfo = roundInfo.nextRound()//다음 라운드로 진행
-                    gameProcessor.setCorrectAnswer(as: answerGenerator.generateAnswer())//정답 생성기로 정답을 생성.
+                switch gameStatus.status{
+                case .menu(.inGameMenu):
+                    printer.printStatus(to: gameStatus.status)
+                    gameStatus.updateStatus(to: try receiver.receiveMenuSelect())//게임 메뉴 입력
                     
-                    while gameStatus.status == .gamePlaying {
-                        runningBaseball()
-                    }
-                    
-                    if gameStatus.status == .gameStop { //게임 중단 상태일 시 처음으로 돌아감
-                        printer.printGameStopMessage()
-                    } else {//히스토리에 이번 회차와 반복 수 입력
-                        gameHistory.addGameHistory(reps: roundInfo.tryCount, round: roundInfo.round)
-                    }
-                    pressAnyKeyToContinue()
-                    
-                case .gameHistory:
+                case .menu(.gameHistory):
                     printer.printGameHistory(gameHistory.getHistory())//히스토리 출력
+                    gameStatus.updateStatus(to: .menu(.inGameMenu))
                     pressAnyKeyToContinue()
                     
-                case .gameExit:
-                    gameStatus.updateStatus(to: .stopRunning)
+                case .menu(.gameOff):
+                    printer.printStatus(to: gameStatus.status)
+                    gameStatus.updateStatus(to: .menu(.gameOff))
+                    
+                case .play(.gamePlay):
+                    gameProcessor.setCorrectAnswer(as: answerGenerator.generateAnswer())//정답 생성기로 정답을 생성.
+                    while gameStatus.status == .play(.gamePlay) {
+                        try runningBaseball()//gameEnd 또는 gameStop으로 상태를 변경가능함
+                    }
+                case .play(.gameStop):
+                    printer.printStatus(to: gameStatus.status)
+                    gameStatus.updateStatus(to: .menu(.inGameMenu))
+                    pressAnyKeyToContinue()
+                    
+                case .play(.gameEnd):
+                    gameHistory.addGameHistory(reps: roundInfo.tryCount, round: roundInfo.round)//히스토리에 이번 회차와 반복 수 입력
+                    roundInfo = roundInfo.nextRound()//라운드 증가
+                    gameStatus.updateStatus(to: .menu(.inGameMenu))
+                    pressAnyKeyToContinue()
+                    
+                
                 }
             } catch let error as ErrorCase {
                 printer.printErrorMessage(error)
@@ -83,7 +88,7 @@ class NumericBall{
         }
     }
     
-    private func runningBaseball(){
+    private func runningBaseball() throws {
         do {
             printer.printAnswerRequest()//입력 요청 출력
             if let receiveAnswer = try receiver.receiveAnswer() {//게임 진행 중 q를 누르면 게임 중단
@@ -92,24 +97,18 @@ class NumericBall{
                 roundInfo = roundInfo.plusTryCount()
                 if strikeAndBall == (strike: targetStrikeCount, ball: 0) {//홈런을 치는 경우
                     printer.printTryCount(to: roundInfo.tryCount)
-                    gameStatus.updateStatus(to: .gameEnd)//게임 종료
+                    gameStatus.updateStatus(to: .play(.gameEnd))//게임 종료
                 }
             } else {
-                gameStatus.updateStatus(to: .gameStop)//게임 중단
+                gameStatus.updateStatus(to: .play(.gameStop))//게임 중단
             }
-        }
-        catch let error as ErrorCase {
-            printer.printErrorMessage(error)
-        }
-        catch {
-            printer.printErrorMessage(.undefinedError)
         }
     }
     
     private func pressAnyKeyToContinue(){
         printer.printContinuePressAnyKey()
         receiver.receiveContinue()
-        gameStatus.updateStatus(to: .inGameMenu)
+       
     }
 }
 
@@ -118,7 +117,7 @@ extension NumericBall {
         private(set) var round: Int//private(set)으로 직접적인 수정만 불가능하게 하고 자유롭게 읽을 수 있게 함
         private(set) var tryCount: Int
         
-        init(round: Int = 0, tryCount: Int = 0) {//초기화 시 기본값 설정
+        init(round: Int = 1, tryCount: Int = 0) {//초기화 시 기본값 설정
             self.round = round
             self.tryCount = tryCount
         }

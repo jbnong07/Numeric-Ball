@@ -31,7 +31,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				EnumDefined/ErrorCase.swift,
-				EnumDefined/MenuCase.swift,
 				GameManager/AnswerGenerator.swift,
 				GameManager/GameProcess.swift,
 				GameManager/NumericBall.swift,

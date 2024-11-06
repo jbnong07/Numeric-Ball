@@ -10,23 +10,26 @@
  또는 클래스별 프린터를 만들어서 각 기능에 맞는 프린터를 주입할지 고민되었음.
  그러나 각 클래스에서 프린터를 가져서 클래스 내부에서 출력 작업이 끝나면 사용할 땐 편하긴 하지만 너무 코드가 복잡해질 거 같다는 생각이 듬
  */
-final class Printer {
-    func printMenu() {
-        print("*****************************************")
-        print("원하시는 메뉴를 선택하세요.")
-        print("1. ⚾︎게임 시작  /  2. ✎게임 기록  /  q. 게임 나가기 ")
-        print("*****************************************")
-        print("ㄴ",terminator: "")
-    }
-    
-    func printSelectCheck(to menu: Menu) {
+final class Printer {    
+    func printStatus(to menu: GameStatus.Status) {
         switch menu {
-        case .gameStart:
-            print("\n< 게임을 시작합니다! >")
-        case .gameHistory:
+        case .menu(.inGameMenu):
+            print("*****************************************")
+            print("원하시는 메뉴를 선택하세요.")
+            print("1. ⚾︎게임 시작  /  2. ✎게임 기록  /  q. 게임 나가기 ")
+            print("*****************************************")
+            print("ㄴ",terminator: "")
+        case .menu(.gameHistory):
             print("\n< 게임 기록입니다! >")
-        case .gameExit:
+        case .menu(.gameOff):
             print("\n< 게임을 종료합니다! >")
+            
+        case .play(.gamePlay):
+            print("\n< 게임을 시작합니다! >")
+        case .play(.gameEnd):
+            print("\n< 라운드가 종료됐습니다! >")
+        case .play(.gameStop):
+            print("\n< 게임을 중단합니다! >")
         }
     }
     
@@ -59,10 +62,6 @@ final class Printer {
             rankingCount += 1
         }
         print("")
-    }
-    
-    func printGameStopMessage() {
-        print("\n< 게임을 포기합니다. >\n")
     }
     
     func printContinuePressAnyKey(){
