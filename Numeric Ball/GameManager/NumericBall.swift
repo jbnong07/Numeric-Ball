@@ -29,19 +29,21 @@ class NumericBall{
     private let answerGenerator: GeneratorProtocol//랜덤한 정답을 만들어주는 클래스
     private let gameProcessor: GameProcess//게임을 진행하여 스트라이크와 볼을 알려주는 클래스
     private var gameStatus: GameStatus
-    private var gameHistory: GameHistory = GameHistory()//게임 기록을 관리할 수 있는 구조체
-    private var roundInfo: RoundHistory = RoundHistory()//라운드와 해당 라운드의 기록을 관리하는 구조체
+    private var gameHistory: GameHistory//게임 기록을 관리할 수 있는 구조체
+    private var roundInfo: RoundHistory//라운드와 해당 라운드의 기록을 관리하는 구조체
     private let targetStrikeCount = 4
     
     init(receiver: Receiver = Receiver(),
          printer: Printer = Printer(),
          generator: GeneratorProtocol = AnswerGenerator(),
-         processor: GameProcess = GameProcess(), gameStatus: GameStatus = GameStatus()){
+         processor: GameProcess = GameProcess(), gameStatus: GameStatus = GameStatus(), gameHistory: GameHistory = GameHistory(), roundHistory : RoundHistory = RoundHistory() ){
         self.receiver = receiver
         self.printer = printer
         self.answerGenerator = generator
         self.gameProcessor = processor
         self.gameStatus = gameStatus
+        self.gameHistory = gameHistory
+        self.roundInfo = roundHistory
     }
     
     //처음에 작성한 코드의 길이가 너무 길어 반복되는 코드와 기능이 구분되는 코드를 메서드로 분리하려 노력
@@ -56,7 +58,7 @@ extension NumericBall {
     //state에 따른 분기처리
     private func processStatus(){
         printer.printStatus(to: gameStatus.status)//현재 상태 출력
-        if let playClosure = getGameFlowDictionary()[gameStatus.status]  {
+        if let playClosure = getGameFlowDictionary()[gameStatus.status] {//클로저 딕셔너리를 반환받아 상태에 따른 클로저 실행
             do {
                 try playClosure()
             } catch let error as ErrorCase {
@@ -68,7 +70,7 @@ extension NumericBall {
     }
     //스위치 문이 아닌 클로져 딕셔너리로 관리하는 기법을 적용해보려고 함.
     //클래스를 참조하는 과정(강한 참조)에서 순환참조가 발생하여 메모리 누수가 발생할 수 있게 됨 이를 방지하기 위한 코드로 인해 가독성이 떨어져보임.
-    //클로저 딕셔너리를 반환하는 메서드를 작성하여 순환참조의 가능성을 낮추고 lazy로 선언한 효과와 비슷하게 만듬 + extension으로 옮겨서 더욱 클래스 본질에 집중되게 함
+    //클로저 딕셔너리를 반환하는 메서드를 작성하여 순환참조의 가능성을 낮추고 lazy로 선언한 효과와 비슷하게 만듬 + extension으로 옮겨서 정리
     private func getGameFlowDictionary() -> [GameStatus.Status : () throws -> Void] {
         return  [
             .menu(.inGameMenu) : { [weak self] in
