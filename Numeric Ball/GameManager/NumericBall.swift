@@ -44,71 +44,74 @@ class NumericBall{
     }
     
     func gameStart() {
-        var gamePlaying: Bool = true
-        while gamePlaying {
-            GameStatus.shared.updateStatus(to: .inGameMenu)//메뉴 선택으로 스테이터스 설정
+        while GameStatus.shared.gameStatus == .inGameMenu {
             printer.printMenu()//게임 메뉴 고르기 시작
             do {
-                switch try receiver.receiveMenuSelect(){//게임 메뉴 리시브
+                let menuInput = try receiver.receiveMenuSelect()//게임 메뉴 리시브
+                printer.printSelectCheck(to: menuInput)//입장한 메뉴 출력
+                switch menuInput{
                 case .gameStart:
                     GameStatus.shared.updateStatus(to: .gamePlaying)//게임 스테이터스 설정
                     self.round += 1//라운드 조정
-                    printer.printSelectCheck(to: .gameStart)//입장한 메뉴 출력
                     gameProcesser.setCorrectAnswer(as: answerGenerator.generateAnswer())//정답 생성기로 정답을 생성.
                     
-                    var isCorrectAnswer: Bool = false//정답이 맞다면 반복을 중단하도록 네이밍하고 반복문에 !를 붙임
-                    while !isCorrectAnswer {
-                        do {
-                            printer.printAnswerRequest()//입력 요청 출력
-                            if let receiveAnswer = try receiver.receiveAnswer() {//게임 진행 중 q를 누르면 게임 중단
-                                let strikeAndBall = gameProcesser.gameProcess(receive: receiveAnswer)//스트라이크, 볼 체크
-                                printer.printStrikeAndBall(to: strikeAndBall)//정답에 따른 문구 출력
-                                tryCount += 1 //시도 횟수 추가
-                                if strikeAndBall == (strike: 4, ball: 0) {//홈런을 치는 경우 프로세스 종료
-                                    printer.printTryCount(to: tryCount)
-                                    GameStatus.shared.updateStatus(to: .gameEnd)//게임 종료상태로 스테이터스 설정
-                                    isCorrectAnswer = true
-                                }
-                            } else {
-                                GameStatus.shared.updateStatus(to: .gameStop)//게임 중단 문구 출력
-                                break
-                            }
-                        }
-                        catch let error as ErrorCase {
-                            printer.printErrorMessage(error)
-                        }
-                        catch {
-                            printer.printErrorMessage(.undefinedError)
-                        }
+                    while GameStatus.shared.gameStatus == .gamePlaying {
+                        runningBaseball()
                     }
+                    
                     if GameStatus.shared.gameStatus == .gameStop { //게임 중단 상태일 시 처음으로 돌아감
-                        GameStatus.shared.updateStatus(to: .inGameMenu)
                         printer.printGameStopMessage()
-                        continue
+                        self.tryCount = 0//
+                        pressAnykeyToContinue()
+                        
+                    } else {
+                        gameHistory.addGameHistory(reps: tryCount, round: round)//히스토리에 이번 회차와 반복 수 입력
+                        self.tryCount = 0//시도 횟수 초기화
+                        pressAnykeyToContinue()
                     }
-                    gameHistory.addGameHistory(reps: tryCount, round: round)//히스토리에 이번 회차와 반복 수 입력
-                    tryCount = 0//시도 횟수 초기화
-                    printer.printContinuePressAnyKey()
-                    receiver.receiveContinue()
                     
                 case .gameHistory:
-                    printer.printSelectCheck(to: .gameHistory)//입장한 메뉴 출력
                     printer.printGameHistory(gameHistory.getHistory())//히스토리 출력
-                    printer.printContinuePressAnyKey()
-                    receiver.receiveContinue()
-
+                    pressAnykeyToContinue()
+                    
                 case .gameExit:
-                    printer.printSelectCheck(to: .gameExit)//게임 종료 출력
-                    gamePlaying = false
+                    GameStatus.shared.updateStatus(to: .stopRunning)
                 }
             } catch let error as ErrorCase {
                 printer.printErrorMessage(error)
-                receiver.receiveContinue()
             } catch {
                 printer.printErrorMessage(.undefinedError)
-                receiver.receiveContinue()
             }
         }
+    }
+    
+    private func runningBaseball(){
+        do {
+            printer.printAnswerRequest()//입력 요청 출력
+            if let receiveAnswer = try receiver.receiveAnswer() {//게임 진행 중 q를 누르면 게임 중단
+                let strikeAndBall = gameProcesser.gameProcess(receive: receiveAnswer)//스트라이크, 볼 체크
+                printer.printStrikeAndBall(to: strikeAndBall)//정답에 따른 문구 출력
+                self.tryCount += 1 //시도 횟수 추가
+                if strikeAndBall == (strike: 4, ball: 0) {//홈런을 치는 경우
+                    printer.printTryCount(to: self.tryCount)
+                    GameStatus.shared.updateStatus(to: .gameEnd)//게임 종료
+                }
+            } else {
+                GameStatus.shared.updateStatus(to: .gameStop)//게임 중단
+            }
+        }
+        catch let error as ErrorCase {
+            printer.printErrorMessage(error)
+        }
+        catch {
+            printer.printErrorMessage(.undefinedError)
+        }
+    }
+    
+    private func pressAnykeyToContinue(){
+        printer.printContinuePressAnyKey()
+        receiver.receiveContinue()
+        GameStatus.shared.updateStatus(to: .inGameMenu)
     }
 }
 

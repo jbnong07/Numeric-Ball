@@ -30,14 +30,14 @@
 		7AD1411A2CD882DB00B5CC04 /* Exceptions for "Numeric Ball" folder in "Numeric Ball" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				AnswerGenerator/AnswerGenerator.swift,
-				ErrorCase/ErrorCase.swift,
+				EnumDefined/ErrorCase.swift,
+				EnumDefined/MenuCase.swift,
+				GameManager/AnswerGenerator.swift,
+				GameManager/GameProcess.swift,
 				GameManager/NumericBall.swift,
-				GameProcess/GameProcess.swift,
-				MenuCase/Menu.swift,
 				NumericBallController/main.swift,
-				Printer/Printer.swift,
-				Receiver/Receiver.swift,
+				PrintAndReceive/Printer.swift,
+				PrintAndReceive/Receiver.swift,
 				State/State.swift,
 				Typealias/Typealias.swift,
 				UserData/GameData.swift,

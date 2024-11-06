@@ -25,6 +25,6 @@ extension GameStatus {
         case gamePlaying
         case gameEnd
         case gameStop
-        
+        case stopRunning
     }
 }
