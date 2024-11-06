@@ -49,41 +49,47 @@ class NumericBall{
     //내부에서 self를 통해 참조하기 위해 lazy 작성
     //클래스를 참조하는 과정(강한 참조)에서 순환참조가 발생하여 메모리 누수가 발생할 수 있게 됨
     private lazy var gameFlowDictionary: [GameStatus.Status : () throws -> Void ] = [
-        .menu(.inGameMenu) : { },
-        .menu(.gameHistory) : { self.getHistory() },
-        .menu(.gameOff) : {},
-        .play(.gameStart) : {},
-        .play(.gamePlay) : {},
-        .play(.gameStop) : {},
-        .play(.gameEnd) : {}
+        .menu(.inGameMenu) : { [weak self] in
+            guard let self = self else { return }
+            self.gameStatus.updateStatus(to: try self.receiver.receiveMenuSelect()) },
+        .menu(.gameHistory) : {
+            [weak self] in
+            guard let self = self else { return }
+            self.getHistory() },
+        .menu(.gameOff) : {
+            [weak self] in
+            guard let self = self else { return }
+            self.printer.printGameOffError()
+        },
+        .play(.gameStart) : {
+            [weak self] in
+            guard let self = self else { return }
+            self.startBaseball()
+        },
+        .play(.gamePlay) : {
+            [weak self] in
+            guard let self = self else { return }
+            try self.runningBaseball()
+        },
+        .play(.gameStop) : {
+            [weak self] in
+            guard let self = self else { return }
+            self.backToMenu()
+        },
+        .play(.gameEnd) : {
+            [weak self] in
+            guard let self = self else { return }
+            self.updateRanking()
+        }
     ]
     //처음 작성한 코드의 길이가 너무 길어 반복되는 코드와 기능이 구분되는 코드를 메서드로 분리하려 노력
-    
+    //클로저 딕셔너리 적용으로 기존의 스위치문이 대체되면서 길이가 대폭 축소
     func gameStart() {
         while gameStatus.status != .menu(.gameOff) {//게임 종료를 선택하기 전까지 반복
             do {
                 printer.printStatus(to: gameStatus.status)
-                switch gameStatus.status{//스위치문으로 분기처리하는 것이 아닌 딕셔너리에 상태와 클로저를 담는 방식을 알게 되어 사용해볼 예정
-                case .menu(.inGameMenu):
-                    gameStatus.updateStatus(to: try receiver.receiveMenuSelect())
-                    
-                case .menu(.gameHistory):
-                    getHistory()
-                    
-                case .menu(.gameOff):
-                    printer.printGameOffError()
-                    
-                case .play(.gameStart):
-                    startBaseball()
-                    
-                case .play(.gamePlay):
-                    try runningBaseball()
-                    
-                case .play(.gameStop):
-                    backToMenu()
-                    
-                case .play(.gameEnd):
-                    updateRanking()
+                if let playClosure = gameFlowDictionary[gameStatus.status] {
+                    try playClosure()
                 }
             } catch let error as ErrorCase {
                 printer.printErrorMessage(error)
