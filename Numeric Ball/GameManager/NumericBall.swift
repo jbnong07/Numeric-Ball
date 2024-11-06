@@ -44,32 +44,52 @@ class NumericBall{
         self.gameProcessor = processor
         self.gameStatus = gameStatus
     }
+    
+    //스위치 문이 아닌 클로져 딕셔너리로 관리하는 기법을 적용해보려고 함.
+    //내부에서 self를 통해 참조하기 위해 lazy 작성
+    //클래스를 참조하는 과정(강한 참조)에서 순환참조가 발생하여 메모리 누수가 발생할 수 있게 됨
+    private lazy var gameFlowDictionary: [GameStatus.Status : () throws -> Void ] = [
+        .menu(.inGameMenu) : { [weak self] in
+            guard let self = self else { return }
+            self.gameStatus.updateStatus(to: try self.receiver.receiveMenuSelect()) },
+        .menu(.gameHistory) : {
+            [weak self] in
+            guard let self = self else { return }
+            self.getHistory() },
+        .menu(.gameOff) : {
+            [weak self] in
+            guard let self = self else { return }
+            self.printer.printGameOffError()
+        },
+        .play(.gameStart) : {
+            [weak self] in
+            guard let self = self else { return }
+            self.startBaseball()
+        },
+        .play(.gamePlay) : {
+            [weak self] in
+            guard let self = self else { return }
+            try self.runningBaseball()
+        },
+        .play(.gameStop) : {
+            [weak self] in
+            guard let self = self else { return }
+            self.backToMenu()
+        },
+        .play(.gameEnd) : {
+            [weak self] in
+            guard let self = self else { return }
+            self.updateRanking()
+        }
+    ]
     //처음 작성한 코드의 길이가 너무 길어 반복되는 코드와 기능이 구분되는 코드를 메서드로 분리하려 노력
+    //클로저 딕셔너리 적용으로 기존의 스위치문이 대체되면서 길이가 대폭 축소
     func gameStart() {
         while gameStatus.status != .menu(.gameOff) {//게임 종료를 선택하기 전까지 반복
             do {
                 printer.printStatus(to: gameStatus.status)
-                switch gameStatus.status{
-                case .menu(.inGameMenu):
-                    gameStatus.updateStatus(to: try receiver.receiveMenuSelect())
-                    
-                case .menu(.gameHistory):
-                    getHistory()
-                    
-                case .menu(.gameOff):
-                    printer.printGameOffError()
-                    
-                case .play(.gameStart):
-                    startBaseball()
-                    
-                case .play(.gamePlay):
-                    try runningBaseball()
-                    
-                case .play(.gameStop):
-                    backToMenu()
-                    
-                case .play(.gameEnd):
-                    updateRanking()
+                if let playClosure = gameFlowDictionary[gameStatus.status] {
+                    try playClosure()
                 }
             } catch let error as ErrorCase {
                 printer.printErrorMessage(error)
@@ -86,21 +106,24 @@ class NumericBall{
     }
     //게임 진행 메서드
     private func runningBaseball() throws {
-        do {
-            printer.printAnswerRequest()//입력 요청 출력
-            if let receiveAnswer = try receiver.receiveAnswer() {
-                let strikeAndBall = gameProcessor.gameProcess(receive: receiveAnswer)//스트라이크, 볼 체크
-                printer.printStrikeAndBall(to: strikeAndBall)//정답에 따른 문구 출력
-                roundInfo = roundInfo.plusTryCount()
-                if strikeAndBall == (strike: targetStrikeCount, ball: 0) {//홈런을 치는 경우
-                    printer.printTryCount(to: roundInfo.tryCount)
-                    gameStatus.updateStatus(to: .play(.gameEnd))//게임 종료
-                }
-            } else {//게임 진행 중 q를 누르면 게임 중단
-                gameStatus.updateStatus(to: .play(.gameStop))
-            }
+        printer.printAnswerRequest()//입력 요청 출력
+        
+        if let receiveAnswer = try receiver.receiveAnswer() {
+            roundInfo = roundInfo.plusTryCount()
+            checkHomerun(score: gameProcessor.gameProcess(receive: receiveAnswer))
+        } else {//게임 진행 중 q를 누르면 게임 중단
+            gameStatus.updateStatus(to: .play(.gameStop))
         }
     }
+    //정답 체크
+    private func checkHomerun(score: StrikeAndBall){
+        printer.printStrikeAndBall(to: score)//정답에 따른 문구 출력
+        if score == (strike: targetStrikeCount, ball: 0) {//홈런을 치는 경우
+            printer.printTryCount(to: roundInfo.tryCount)
+            gameStatus.updateStatus(to: .play(.gameEnd))//게임 종료
+        }
+    }
+    
     //기록을 보는 메서드
     private func getHistory() {
         printer.printGameHistory(gameHistory.getHistory())//히스토리 출력
@@ -110,6 +133,7 @@ class NumericBall{
     private func updateRanking() {
         gameHistory.addGameHistory(reps: roundInfo.tryCount, round: roundInfo.round)//히스토리에 이번 회차와 반복 수 입력
         roundInfo = roundInfo.nextRound()//라운드 증가
+        
         backToMenu()
     }
 }
