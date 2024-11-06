@@ -28,54 +28,52 @@ class NumericBall{
     private let receiver: Receiver
     private let printer: Printer
     private let answerGenerator: GeneratorProtocol//랜덤한 정답을 만들어주는 클래스
-    private let gameProcesser: GameProcess//게임을 진행하여 스트라이크와 볼을 알려주는 클래스
+    private let gameProcessor: GameProcess//게임을 진행하여 스트라이크와 볼을 알려주는 클래스
+    private var gameStatus: GameStatus
     private var gameHistory: GameHistory = GameHistory()//게임 기록을 관리할 수 있는 클래스
-    private var round: Int = 0//현재 회차를 담을 변수
-    private var tryCount: Int = 0//정답까지의 시도 횟수를 표시
+    private var roundInfo: RoundHistory = RoundHistory()//라운드와 해당 라운드의 기록을 관리하는 클래스
+    private let targetStrikeCount = 4
     
     init(receiver: Receiver = Receiver(),
          printer: Printer = Printer(),
          generator: GeneratorProtocol = AnswerGenerator(),
-         processer: GameProcess = GameProcess()){
+         processor: GameProcess = GameProcess(), gameStatus: GameStatus = GameStatus()){
         self.receiver = receiver
         self.printer = printer
         self.answerGenerator = generator
-        self.gameProcesser = processer
+        self.gameProcessor = processor
+        self.gameStatus = gameStatus
     }
-    
+    //함수가 너무 길어 개선할 여지가 있다고 판단됨
     func gameStart() {
-        while GameStatus.shared.gameStatus == .inGameMenu {
+        while gameStatus.status == .inGameMenu {
             printer.printMenu()//게임 메뉴 고르기 시작
             do {
                 let menuInput = try receiver.receiveMenuSelect()//게임 메뉴 리시브
                 printer.printSelectCheck(to: menuInput)//입장한 메뉴 출력
                 switch menuInput{
                 case .gameStart:
-                    GameStatus.shared.updateStatus(to: .gamePlaying)//게임 스테이터스 설정
-                    self.round += 1//라운드 조정
-                    gameProcesser.setCorrectAnswer(as: answerGenerator.generateAnswer())//정답 생성기로 정답을 생성.
+                    gameStatus.updateStatus(to: .gamePlaying)//게임 스테이터스 설정
+                    roundInfo = roundInfo.nextRound()//다음 라운드로 진행
+                    gameProcessor.setCorrectAnswer(as: answerGenerator.generateAnswer())//정답 생성기로 정답을 생성.
                     
-                    while GameStatus.shared.gameStatus == .gamePlaying {
+                    while gameStatus.status == .gamePlaying {
                         runningBaseball()
                     }
                     
-                    if GameStatus.shared.gameStatus == .gameStop { //게임 중단 상태일 시 처음으로 돌아감
+                    if gameStatus.status == .gameStop { //게임 중단 상태일 시 처음으로 돌아감
                         printer.printGameStopMessage()
-                        self.tryCount = 0//
-                        pressAnykeyToContinue()
-                        
-                    } else {
-                        gameHistory.addGameHistory(reps: tryCount, round: round)//히스토리에 이번 회차와 반복 수 입력
-                        self.tryCount = 0//시도 횟수 초기화
-                        pressAnykeyToContinue()
+                    } else {//히스토리에 이번 회차와 반복 수 입력
+                        gameHistory.addGameHistory(reps: roundInfo.tryCount, round: roundInfo.round)
                     }
+                    pressAnyKeyToContinue()
                     
                 case .gameHistory:
                     printer.printGameHistory(gameHistory.getHistory())//히스토리 출력
-                    pressAnykeyToContinue()
+                    pressAnyKeyToContinue()
                     
                 case .gameExit:
-                    GameStatus.shared.updateStatus(to: .stopRunning)
+                    gameStatus.updateStatus(to: .stopRunning)
                 }
             } catch let error as ErrorCase {
                 printer.printErrorMessage(error)
@@ -89,15 +87,15 @@ class NumericBall{
         do {
             printer.printAnswerRequest()//입력 요청 출력
             if let receiveAnswer = try receiver.receiveAnswer() {//게임 진행 중 q를 누르면 게임 중단
-                let strikeAndBall = gameProcesser.gameProcess(receive: receiveAnswer)//스트라이크, 볼 체크
+                let strikeAndBall = gameProcessor.gameProcess(receive: receiveAnswer)//스트라이크, 볼 체크
                 printer.printStrikeAndBall(to: strikeAndBall)//정답에 따른 문구 출력
-                self.tryCount += 1 //시도 횟수 추가
-                if strikeAndBall == (strike: 4, ball: 0) {//홈런을 치는 경우
-                    printer.printTryCount(to: self.tryCount)
-                    GameStatus.shared.updateStatus(to: .gameEnd)//게임 종료
+                roundInfo = roundInfo.plusTryCount()
+                if strikeAndBall == (strike: targetStrikeCount, ball: 0) {//홈런을 치는 경우
+                    printer.printTryCount(to: roundInfo.tryCount)
+                    gameStatus.updateStatus(to: .gameEnd)//게임 종료
                 }
             } else {
-                GameStatus.shared.updateStatus(to: .gameStop)//게임 중단
+                gameStatus.updateStatus(to: .gameStop)//게임 중단
             }
         }
         catch let error as ErrorCase {
@@ -108,10 +106,31 @@ class NumericBall{
         }
     }
     
-    private func pressAnykeyToContinue(){
+    private func pressAnyKeyToContinue(){
         printer.printContinuePressAnyKey()
         receiver.receiveContinue()
-        GameStatus.shared.updateStatus(to: .inGameMenu)
+        gameStatus.updateStatus(to: .inGameMenu)
     }
 }
 
+extension NumericBall {
+    struct RoundHistory {//라운드를 쌓아나가고 새로운 라운드마다 카운트 초기화, 기록 시 라운드와 카운트를 읽을 수 있어야 함.
+        private(set) var round: Int//private(set)으로 직접적인 수정만 불가능하게 하고 자유롭게 읽을 수 있게 함
+        private(set) var tryCount: Int
+        
+        init(round: Int = 0, tryCount: Int = 0) {//초기화 시 기본값 설정
+            self.round = round
+            self.tryCount = tryCount
+        }
+        
+        //구조체의 값이 변경되는 게 아니라 새로운 구조체를 반환하는 것으로 불변성을 지키려고 했음.
+        //함수를 동사형으로 네이밍하여 의도를 더 정확히 전달하도록 개선해야 함
+        func plusTryCount() -> RoundHistory {
+            return RoundHistory(round: round, tryCount: tryCount + 1)
+        }
+        
+        func nextRound() -> RoundHistory {
+            return RoundHistory(round: self.round + 1, tryCount: 0)
+        }
+    }
+}
