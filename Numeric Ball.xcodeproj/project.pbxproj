@@ -41,6 +41,7 @@
 				Typealias/Typealias.swift,
 				UserData/GameData.swift,
 				UserData/GameHistory.swift,
+				UserData/RoundHistory.swift,
 			);
 			target = 7AD140ED2CD86B3E00B5CC04 /* Numeric Ball */;
 		};
