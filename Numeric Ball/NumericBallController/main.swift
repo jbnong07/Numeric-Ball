@@ -5,7 +5,8 @@
 //  Created by 박진홍 on 11/4/24.
 //
 
-import Foundation
 
-print("Hello, World!")
+let baseball: NumericBall = NumericBall()
+baseball.gameStart()
+
 
