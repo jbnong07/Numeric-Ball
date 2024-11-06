@@ -20,10 +20,11 @@ final class GameStatus {
 //게임 메뉴와 관련된 상태와 플레이에 관련된 상태를 연관값으로 쉽게 구분해보려는 시도
 //비교 연산자 사용이 불가능해지게 되었음 -> while case 등 case를 이용한 패턴 매칭을 알게 되었음.
 //메뉴 구분은 조금 더 쉬워졌으나 while문의 조건에서 바로 특정 상태가 되기 전까지 반복하는 로직이 불가능해져 추가적인 break문이 필요하게 됨
-//Equatable을 준수하거나 연산프로퍼티를 사용하면 비교가 가능해짐
+//Equatable을 준수하면 ==를 통한 비교가 가능해짐
 //아직은 연관값으로 메뉴와 게임 플레이를 구분하는 것보다 훨씬 코드가 복잡해지기만 한다는 느낌을 받음
+//딕셔너리의 키로 넣을수 없어서 Hashable을 따로 준수하였음.
 extension GameStatus {
-    enum Status: Equatable {
+    enum Status: Equatable, Hashable {
         case menu(Menu)
         case play(Play)
         
@@ -40,26 +41,40 @@ extension GameStatus {
             case gameStop
         }
         
-        static func == (lhs: Status, rhs: Status) -> Bool {
-            switch (lhs, rhs) {
-            case (.menu(.gameOff), .menu(.gameOff)):
-                return true
-            case (.menu(.inGameMenu), .menu(.inGameMenu)):
-                return true
-            case (.menu(.gameHistory), .menu(.gameHistory)):
-                return true
-            case (.play(.gamePlay), .play(.gamePlay)):
-                return true
-            case (.play(.gameEnd), .play(.gameEnd)):
-                return true
-            case (.play(.gameStop), .play(.gameStop)):
-                return true
-            case (.play(.gameStart), .play(.gameStart)):
-                return true
-            default:
-                return false
-            }
-        }
+        
     }
 }
 
+extension GameStatus.Status {
+    func hash(into hasher: inout Hasher) {
+        switch self {
+        case .menu(let menuName):
+            hasher.combine(0)
+            hasher.combine(menuName)
+        case .play(let playName):
+            hasher.combine(1)
+            hasher.combine(playName)
+        }
+    }
+    
+    static func == (lhs: GameStatus.Status, rhs: GameStatus.Status) -> Bool {
+        switch (lhs, rhs) {
+        case (.menu(.gameOff), .menu(.gameOff)):
+            return true
+        case (.menu(.inGameMenu), .menu(.inGameMenu)):
+            return true
+        case (.menu(.gameHistory), .menu(.gameHistory)):
+            return true
+        case (.play(.gamePlay), .play(.gamePlay)):
+            return true
+        case (.play(.gameEnd), .play(.gameEnd)):
+            return true
+        case (.play(.gameStop), .play(.gameStop)):
+            return true
+        case (.play(.gameStart), .play(.gameStart)):
+            return true
+        default:
+            return false
+        }
+    }
+}

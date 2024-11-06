@@ -44,12 +44,22 @@ class NumericBall{
         self.gameProcessor = processor
         self.gameStatus = gameStatus
     }
+    
+    private lazy var gameFlowDictionary: [GameStatus.Status : () throws -> Void ] = [
+        .menu(.inGameMenu) : { },
+        .menu(.gameHistory) : { [weak self] in self?.getHistory() },
+        .menu(.gameOff) : {},
+        .play(.gameStart) : {},
+        .play(.gamePlay) : {},
+        .play(.gameStop) : {},
+        .play(.gameEnd) : {}
+    ]
     //처음 작성한 코드의 길이가 너무 길어 반복되는 코드와 기능이 구분되는 코드를 메서드로 분리하려 노력
     func gameStart() {
         while gameStatus.status != .menu(.gameOff) {//게임 종료를 선택하기 전까지 반복
             do {
                 printer.printStatus(to: gameStatus.status)
-                switch gameStatus.status{
+                switch gameStatus.status{//스위치문으로 분기처리하는 것이 아닌 딕셔너리에 상태와 클로저를 담는 방식을 알게 되어 사용해볼 예정
                 case .menu(.inGameMenu):
                     gameStatus.updateStatus(to: try receiver.receiveMenuSelect())
                     
