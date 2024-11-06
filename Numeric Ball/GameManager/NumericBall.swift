@@ -44,41 +44,32 @@ class NumericBall{
         self.gameProcessor = processor
         self.gameStatus = gameStatus
     }
-    //함수가 너무 길어 개선할 여지가 있다고 판단됨
+    //처음 작성한 코드의 길이가 너무 길어 반복되는 코드와 기능이 구분되는 코드를 메서드로 분리하려 노력
     func gameStart() {
         while gameStatus.status != .menu(.gameOff) {//게임 종료를 선택하기 전까지 반복
             do {
+                printer.printStatus(to: gameStatus.status)
                 switch gameStatus.status{
                 case .menu(.inGameMenu):
-                    printer.printStatus(to: gameStatus.status)
-                    gameStatus.updateStatus(to: try receiver.receiveMenuSelect())//게임 메뉴 입력
+                    gameStatus.updateStatus(to: try receiver.receiveMenuSelect())
                     
                 case .menu(.gameHistory):
-                    printer.printGameHistory(gameHistory.getHistory())//히스토리 출력
-                    gameStatus.updateStatus(to: .menu(.inGameMenu))
-                    pressAnyKeyToContinue()
+                    getHistory()
                     
                 case .menu(.gameOff):
-                    printer.printStatus(to: gameStatus.status)
-                    gameStatus.updateStatus(to: .menu(.gameOff))
+                    printer.printGameOffError()
+                    
+                case .play(.gameStart):
+                    startBaseball()
                     
                 case .play(.gamePlay):
-                    gameProcessor.setCorrectAnswer(as: answerGenerator.generateAnswer())//정답 생성기로 정답을 생성.
-                    while gameStatus.status == .play(.gamePlay) {
-                        try runningBaseball()//gameEnd 또는 gameStop으로 상태를 변경가능함
-                    }
+                    try runningBaseball()
+                    
                 case .play(.gameStop):
-                    printer.printStatus(to: gameStatus.status)
-                    gameStatus.updateStatus(to: .menu(.inGameMenu))
-                    pressAnyKeyToContinue()
+                    backToMenu()
                     
                 case .play(.gameEnd):
-                    gameHistory.addGameHistory(reps: roundInfo.tryCount, round: roundInfo.round)//히스토리에 이번 회차와 반복 수 입력
-                    roundInfo = roundInfo.nextRound()//라운드 증가
-                    gameStatus.updateStatus(to: .menu(.inGameMenu))
-                    pressAnyKeyToContinue()
-                    
-                
+                    updateRanking()
                 }
             } catch let error as ErrorCase {
                 printer.printErrorMessage(error)
@@ -88,10 +79,16 @@ class NumericBall{
         }
     }
     
+    //게임 첫 시작 메서드
+    private func startBaseball() {
+        gameProcessor.setCorrectAnswer(as: answerGenerator.generateAnswer())
+        gameStatus.updateStatus(to: .play(.gamePlay))
+    }
+    //게임 진행 메서드
     private func runningBaseball() throws {
         do {
             printer.printAnswerRequest()//입력 요청 출력
-            if let receiveAnswer = try receiver.receiveAnswer() {//게임 진행 중 q를 누르면 게임 중단
+            if let receiveAnswer = try receiver.receiveAnswer() {
                 let strikeAndBall = gameProcessor.gameProcess(receive: receiveAnswer)//스트라이크, 볼 체크
                 printer.printStrikeAndBall(to: strikeAndBall)//정답에 따른 문구 출력
                 roundInfo = roundInfo.plusTryCount()
@@ -99,16 +96,21 @@ class NumericBall{
                     printer.printTryCount(to: roundInfo.tryCount)
                     gameStatus.updateStatus(to: .play(.gameEnd))//게임 종료
                 }
-            } else {
-                gameStatus.updateStatus(to: .play(.gameStop))//게임 중단
+            } else {//게임 진행 중 q를 누르면 게임 중단
+                gameStatus.updateStatus(to: .play(.gameStop))
             }
         }
     }
-    
-    private func pressAnyKeyToContinue(){
-        printer.printContinuePressAnyKey()
-        receiver.receiveContinue()
-       
+    //기록을 보는 메서드
+    private func getHistory() {
+        printer.printGameHistory(gameHistory.getHistory())//히스토리 출력
+        backToMenu()
+    }
+    //성적을 기록에 추가하는 메서드
+    private func updateRanking() {
+        gameHistory.addGameHistory(reps: roundInfo.tryCount, round: roundInfo.round)//히스토리에 이번 회차와 반복 수 입력
+        roundInfo = roundInfo.nextRound()//라운드 증가
+        backToMenu()
     }
 }
 
@@ -123,6 +125,7 @@ extension NumericBall {
         }
         
         //구조체의 값이 변경되는 게 아니라 새로운 구조체를 반환하는 것으로 불변성을 지키려고 했음.
+        //이번 구조처럼 조건없는 간단한 변경은 불필요한 메모리 할당일 수 있다고 생각함 mutating을 사용하는 것이 더 나을 수도 있음.
         //함수를 동사형으로 네이밍하여 의도를 더 정확히 전달하도록 개선해야 함
         func plusTryCount() -> RoundHistory {
             return RoundHistory(round: round, tryCount: tryCount + 1)
@@ -131,5 +134,17 @@ extension NumericBall {
         func nextRound() -> RoundHistory {
             return RoundHistory(round: self.round + 1, tryCount: 0)
         }
+    }
+    
+    //메인 메뉴로 돌아가는 동작
+    private func backToMenu() {
+        gameStatus.updateStatus(to: .menu(.inGameMenu))
+        pressAnyKeyToContinue()
+    }
+    
+    //아무 키나 입력을 받는 것으로 진행을 매끄럽게 만들기 위함
+    private func pressAnyKeyToContinue() {
+        printer.printContinuePressAnyKey()
+        receiver.receiveContinue()
     }
 }

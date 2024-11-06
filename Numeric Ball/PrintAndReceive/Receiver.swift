@@ -13,7 +13,7 @@ class Receiver {
         if let validInput = input {
             switch validInput {
             case "1":
-                return .play(.gamePlay)
+                return .play(.gameStart)
             case "2":
                 return .menu(.gameHistory)
             case "3", "q", "Q":

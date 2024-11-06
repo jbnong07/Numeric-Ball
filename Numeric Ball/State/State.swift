@@ -34,6 +34,7 @@ extension GameStatus {
         }
         
         enum Play {
+            case gameStart
             case gamePlay
             case gameEnd
             case gameStop
@@ -52,6 +53,8 @@ extension GameStatus {
             case (.play(.gameEnd), .play(.gameEnd)):
                 return true
             case (.play(.gameStop), .play(.gameStop)):
+                return true
+            case (.play(.gameStart), .play(.gameStart)):
                 return true
             default:
                 return false
