@@ -14,7 +14,6 @@ final class GameStatus {
     func updateStatus(to status: Status) {
         self.status = status
     }
-    
 }
 
 //게임 메뉴와 관련된 상태와 플레이에 관련된 상태를 연관값으로 쉽게 구분해보려는 시도
@@ -23,29 +22,47 @@ final class GameStatus {
 //Equatable을 준수하면 ==를 통한 비교가 가능해짐
 //아직은 연관값으로 메뉴와 게임 플레이를 구분하는 것보다 훨씬 코드가 복잡해지기만 한다는 느낌을 받음
 //딕셔너리의 키로 넣을수 없어서 Hashable을 따로 준수하였음.
+//또 rawValue를 연관값과 바로 사용할 수 없기 때문에 연산 프로퍼티를 이용하여 케이스별 고정값을 전달받을 수 있다.
 extension GameStatus {
     enum Status: Equatable, Hashable {
         case menu(Menu)
         case play(Play)
         
-        enum Menu {
-            case inGameMenu
-            case gameHistory
-            case gameOff
+        var statusMessage: String {
+            switch self {
+            case .menu(.inGameMenu):
+                return "*****************************************\n원하시는 메뉴를 선택하세요.\n1. ⚾︎게임 시작  /  2. ✎게임 기록  /  q. 게임 나가기 \n*****************************************\nㄴ"
+            case .menu(.gameHistory):
+                return "\n< 게임 기록입니다! >\n"
+            case .menu(.gameOff):
+                return "\n< 게임을 종료합니다! >\n"
+            case .play(.gameStart):
+                return "\n< 새로운 정답 생성 중! >\n"
+            case .play(.gamePlay):
+                return "\n< 게임을 진행합니다! >\n"
+            case .play(.gameStop):
+                return "\n< 게임을 중단합니다! >\n"
+            case .play(.gameEnd):
+                return "\n< 라운드가 종료됐습니다! >\n"
+            }
         }
-        
-        enum Play {
-            case gameStart
-            case gamePlay
-            case gameEnd
-            case gameStop
-        }
-        
-        
     }
 }
 
 extension GameStatus.Status {
+    enum Menu {
+        case inGameMenu
+        case gameHistory
+        case gameOff
+    }
+    
+    enum Play {
+        case gameStart
+        case gamePlay
+        case gameEnd
+        case gameStop
+    }
+    
     func hash(into hasher: inout Hasher) {
         switch self {
         case .menu(let menuName):

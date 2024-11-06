@@ -37,7 +37,7 @@ protocol GeneratorProtocol {
     func generateAnswer() -> NumToIndex
 }
 
-class AnswerGenerator: GeneratorProtocol {
+final class AnswerGenerator: GeneratorProtocol {
     func generateAnswer() -> NumToIndex{
         var answer: NumToIndex = [:]
         var index: Int = 1
@@ -61,7 +61,7 @@ class AnswerGenerator: GeneratorProtocol {
 class ArrayAnswerGenerator: GeneratorProtocol {
     func generateAnswer() -> NumToIndex {
         var answer: NumToIndex = [:]
-        //배열을 이용한 알고리즘
+        //배열을 이용한 알고리즘 
         return answer
     }
 }

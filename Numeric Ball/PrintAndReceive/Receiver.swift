@@ -5,7 +5,7 @@
 //  Created by 박진홍 on 11/4/24.
 //
 
-class Receiver {
+final class Receiver {
     //지정된 입력이 없을 경우 에러 발생
     func receiveMenuSelect() throws -> GameStatus.Status {
         let input: String? = readLine()

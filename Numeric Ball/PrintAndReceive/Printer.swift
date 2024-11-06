@@ -12,33 +12,12 @@
  */
 final class Printer {    
     func printStatus(to menu: GameStatus.Status) {
-        switch menu {
-        case .menu(.inGameMenu):
-            print("*****************************************")
-            print("원하시는 메뉴를 선택하세요.")
-            print("1. ⚾︎게임 시작  /  2. ✎게임 기록  /  q. 게임 나가기 ")
-            print("*****************************************")
-            print("ㄴ",terminator: "")
-        case .menu(.gameHistory):
-            print("\n< 게임 기록입니다! >")
-        case .menu(.gameOff):
-            print("\n< 게임을 종료합니다! >")
-            
-        case .play(.gameStart):
-            print("\n< 새로운 정답 생성 중! >")
-        case .play(.gamePlay):
-            print("\n< 게임을 진행합니다! >")
-        case .play(.gameEnd):
-            print("\n< 라운드가 종료됐습니다! >")
-        case .play(.gameStop):
-            print("\n< 게임을 중단합니다! >")
-        }
+        print(menu.statusMessage,terminator: "")
     }
     
     func printStrikeAndBall(to strikeAndBall: StrikeAndBall) {
         if strikeAndBall.strike == 4 {
             print("\n< ⚾︎!⚾︎!⚾︎!HomeRun!⚾︎!⚾︎!⚾︎ >")
-
         } else if strikeAndBall == (strike: 0, ball: 0) {
             print("\n< Out >")
         } else {
@@ -72,7 +51,6 @@ final class Printer {
     
     func printErrorMessage(_ errorCase: ErrorCase) {
         print(errorCase.rawValue)
-        
     }
     
     func printGameOffError() {
