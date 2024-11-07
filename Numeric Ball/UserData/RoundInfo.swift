@@ -16,8 +16,8 @@ struct RoundInfo {//라운드를 쌓아나가고 새로운 라운드마다 카�
     //구조체의 값이 변경되는 게 아니라 새로운 구조체를 반환하는 것으로 불변성을 지키려고 했음.
     //이번 구조처럼 조건없는 간단한 변경은 불필요한 메모리 할당일 수 있다고 생각함 mutating을 사용하는 것이 더 나을 수도 있음.
     //함수를 동사형으로 네이밍하여 의도를 더 정확히 전달하도록 개선해야 함
-    func plusTryCount() -> RoundInfo {
-        return RoundInfo(round: round, tryCount: tryCount + 1)
+    func plusTryCount(to num : Int) -> RoundInfo {
+        return RoundInfo(round: round, tryCount: tryCount + num)
     }
     
     func nextRound() -> RoundInfo {
