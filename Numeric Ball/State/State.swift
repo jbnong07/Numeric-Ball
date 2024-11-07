@@ -31,13 +31,21 @@ extension GameStatus {
         var statusMessage: String {
             switch self {
             case .menu(.inGameMenu):
-                return "*****************************************\n원하시는 메뉴를 선택하세요.\n1. ⚾︎게임 시작  /  2. ✎게임 기록  /  q. 게임 나가기 \n*****************************************\nㄴ"
+                return """
+                *****************************************
+                원하시는 메뉴를 선택하세요.
+                1. ⚾︎게임 시작  /  2. ✎게임 기록  /  3. 게임 설명  /  q. 게임 나가기 
+                *****************************************
+                ㄴ
+                """
             case .menu(.gameHistory):
                 return "\n< 게임 기록입니다! >\n"
             case .menu(.gameOff):
                 return "\n< 게임을 종료합니다! >\n"
             case .menu(.cheatMode):
                 return "\n< 치트모드를 설정합니다! >\n"
+            case .menu(.howToPlay):
+                return "\n< 게임 설명 페이지입니다! >\n"
             case .play(.gameStart):
                 return "\n< 새로운 정답 생성 중! >\n"
             case .play(.gamePlay):
@@ -57,6 +65,7 @@ extension GameStatus.Status {
         case gameHistory
         case gameOff
         case cheatMode
+        case howToPlay
     }
     
     enum Play {
@@ -86,6 +95,8 @@ extension GameStatus.Status {
         case (.menu(.gameHistory), .menu(.gameHistory)):
             return true
         case (.menu(.cheatMode), .menu(.cheatMode)):
+            return true
+        case (.menu(.howToPlay), .menu(.howToPlay)):
             return true
         case (.play(.gamePlay), .play(.gamePlay)):
             return true
