@@ -69,4 +69,12 @@ final class Printer {
         }
         print("] >")
     }
+    
+    func printHint(answer: NumToIndex) {
+        print("\n< 힌트: [",terminator: "")
+        for num in answer{
+            print("\(num.key)",terminator: "")
+        }
+        print("] >")
+    }
 }

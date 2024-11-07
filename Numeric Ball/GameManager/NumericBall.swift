@@ -27,8 +27,9 @@ class NumericBall{
     private let receiver: Receiver
     private let printer: Printer
     private let answerGenerator: GeneratorProtocol//랜덤한 정답을 만들어주는 클래스
+    private let answerConverter: AnswerConverter
     private let gameProcessor: GameProcess//게임을 진행하여 스트라이크와 볼을 알려주는 클래스
-    private var gameStatus: GameStatus
+    private var gameStatus: GameStatus//반복되는 분기 처리를 위한 상태 추적
     private var gameHistory: GameHistory//게임 기록을 관리할 수 있는 구조체
     private var roundInfo: RoundInfo//라운드와 해당 라운드의 기록을 관리하는 구조체
     private let targetStrikeCount = 4
@@ -36,11 +37,12 @@ class NumericBall{
     
     init(receiver: Receiver = Receiver(),
          printer: Printer = Printer(),
-         generator: GeneratorProtocol = AnswerGenerator(),
+         generator: GeneratorProtocol = AnswerGenerator(), converter: AnswerConverter = AnswerConverter(),
          processor: GameProcess = GameProcess(), gameStatus: GameStatus = GameStatus(), gameHistory: GameHistory = GameHistory(), roundInfo : RoundInfo = RoundInfo() ){
         self.receiver = receiver
         self.printer = printer
         self.answerGenerator = generator
+        self.answerConverter = converter
         self.gameProcessor = processor
         self.gameStatus = gameStatus
         self.gameHistory = gameHistory
@@ -128,11 +130,17 @@ extension NumericBall {
     //게임 진행 메서드
     private func runningBaseball() throws {
         printer.printAnswerRequest()//입력 요청 출력
-        if let receiveAnswer = try receiver.receiveAnswer() {
-            roundInfo = roundInfo.plusTryCount()//시도 횟수 증가
-            checkHomerun(score: gameProcessor.gameProcess(receive: receiveAnswer))
-        } else {//게임 진행 중 q를 누르면 게임 중단
+        let receiveAnswer = try receiver.receiveAnswer()
+        switch receiveAnswer {
+        case "q":
             gameStatus.updateStatus(to: .play(.gameStop))
+        case "hint":
+            roundInfo = roundInfo.plusTryCount(to: 7)
+            printer.printHint(answer: gameProcessor.gameData.correctAnswer)
+        default:
+            let validAnswer = try answerConverter.convertAnswer(answer: receiveAnswer )
+            roundInfo = roundInfo.plusTryCount(to: 1)
+            checkHomerun(score: gameProcessor.gameProcess(receive: validAnswer))
         }
     }
     //정답 체크
@@ -150,10 +158,12 @@ extension NumericBall {
     }
     //성적을 기록에 추가하는 메서드
     private func updateRanking() {
+        if !isCheatModeOn {//치트모드가 켜져있으면 기록 취소
+            gameHistory.addGameHistory(reps: roundInfo.tryCount, round: roundInfo.round)//히스토리에 이번 회차와 반복 수 입력
+        }
         roundInfo = roundInfo.nextRound()//라운드 증가
         backToMenu()
-        guard isCheatModeOn == false else { return }//치트모드가 켜져있으면 기록 취소
-        gameHistory.addGameHistory(reps: roundInfo.tryCount, round: roundInfo.round)//히스토리에 이번 회차와 반복 수 입력
+        
         
     }
     //메인 메뉴로 돌아가는 동작
