@@ -10,6 +10,11 @@
 //이름이 설정된 튜플을 반환함으로써 사용자가 정확하게 strike와 ball을 구분하여 사용할 수 있게 유도함
 
 final class GameProcess {
+    struct AnswerData {//중첩 타입을 정의하고 GameProcess에 종속되었다는 걸 한 눈에 알기 쉽게 extension에서 첫 줄로 옮김
+        var correctAnswer: NumToIndex = [:]
+        var strikeAndBall: StrikeAndBall = (strike:0, ball: 0)
+    }
+    
     private(set) var gameData: AnswerData = AnswerData()
     
     //정답 생성기로 생성된 값을 전달받는 메서드
@@ -35,8 +40,5 @@ final class GameProcess {
 }
 
 extension GameProcess {
-    struct AnswerData {
-        var correctAnswer: NumToIndex = [:]
-        var strikeAndBall: StrikeAndBall = (strike:0, ball: 0)
-    }
+    
 }

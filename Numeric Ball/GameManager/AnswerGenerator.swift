@@ -58,10 +58,28 @@ final class AnswerGenerator: GeneratorProtocol {
     }
 }
 
+//반복의 수가 크진 않지만 반복문이 적은 딕셔너리를 바로 생성하는 것이 더 낫다고 생각됨.
 class ArrayAnswerGenerator: GeneratorProtocol {
     func generateAnswer() -> NumToIndex {
-        var answer: NumToIndex = [:]
-        //배열을 이용한 알고리즘 
-        return answer
+            var answerArray: [Int] = []
+            var answer: NumToIndex = [:]
+
+            //0을 제외한 첫 숫자
+            answerArray.append(Int.random(in: 1...9))
+
+            //남은 숫자 생성
+            while answerArray.count < 4 {
+                let randomNum = Int.random(in: 0...9)
+                if !answerArray.contains(randomNum) {  // 중복 방지
+                    answerArray.append(randomNum)
+                }
+            }
+
+            // 인덱스와 매칭된 숫자를 딕셔너리로 변환
+            for (index, number) in answerArray.enumerated() {
+                answer[number] = index + 1
+            }
+            
+            return answer
     }
 }
