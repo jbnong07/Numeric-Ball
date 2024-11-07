@@ -16,7 +16,9 @@ final class Receiver {
                 return .play(.gameStart)
             case "2":
                 return .menu(.gameHistory)
-            case "3", "q", "Q":
+            case "3":
+                return .menu(.howToPlay)
+            case "4", "q", "Q":
                 return .menu(.gameOff)
             case "cheat":
                 return .menu(.cheatMode)

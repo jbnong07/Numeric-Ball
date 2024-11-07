@@ -74,6 +74,7 @@ extension NumericBall {
     //스위치 문이 아닌 클로져 딕셔너리로 관리하는 기법을 적용해보려고 함.
     //클래스를 참조하는 과정(강한 참조)에서 순환참조가 발생하여 메모리 누수가 발생할 수 있게 됨 이를 방지하기 위한 코드로 인해 가독성이 떨어져보임.
     //클로저 딕셔너리를 반환하는 메서드를 작성하여 순환참조의 가능성을 낮추고 lazy로 선언한 효과와 비슷하게 만듬 + extension으로 옮겨서 정리
+    //치트모드, 힌트모드, 설명페이지 등을 추가하는 과정에서 스위치문보다 추가하고 관리하기 편하다는 느낌을 받음!
     private func getGameFlowDictionary() -> [GameStatus.Status : () throws -> Void] {
         return  [
             .menu(.inGameMenu) : { [weak self] in
@@ -89,6 +90,12 @@ extension NumericBall {
                 [weak self] in
                 guard let self = self else { return }
                 self.printer.printGameOffError()
+            },
+            .menu(.howToPlay) : {
+                [weak self] in
+                guard let self = self else { return }
+                self.printer.printHowToPlay()
+                self.backToMenu()
             },
             .menu(.cheatMode) : {
                 [weak self] in
