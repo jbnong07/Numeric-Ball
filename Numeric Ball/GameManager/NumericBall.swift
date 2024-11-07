@@ -30,20 +30,21 @@ class NumericBall{
     private let gameProcessor: GameProcess//게임을 진행하여 스트라이크와 볼을 알려주는 클래스
     private var gameStatus: GameStatus
     private var gameHistory: GameHistory//게임 기록을 관리할 수 있는 구조체
-    private var roundInfo: RoundHistory//라운드와 해당 라운드의 기록을 관리하는 구조체
+    private var roundInfo: RoundInfo//라운드와 해당 라운드의 기록을 관리하는 구조체
     private let targetStrikeCount = 4
+    private var isCheatModeOn: Bool = false //치트 모드의 활성화 여부 체크
     
     init(receiver: Receiver = Receiver(),
          printer: Printer = Printer(),
          generator: GeneratorProtocol = AnswerGenerator(),
-         processor: GameProcess = GameProcess(), gameStatus: GameStatus = GameStatus(), gameHistory: GameHistory = GameHistory(), roundHistory : RoundHistory = RoundHistory() ){
+         processor: GameProcess = GameProcess(), gameStatus: GameStatus = GameStatus(), gameHistory: GameHistory = GameHistory(), roundInfo : RoundInfo = RoundInfo() ){
         self.receiver = receiver
         self.printer = printer
         self.answerGenerator = generator
         self.gameProcessor = processor
         self.gameStatus = gameStatus
         self.gameHistory = gameHistory
-        self.roundInfo = roundHistory
+        self.roundInfo = roundInfo
     }
     
     //처음에 작성한 코드의 길이가 너무 길어 반복되는 코드와 기능이 구분되는 코드를 메서드로 분리하려 노력
@@ -75,15 +76,24 @@ extension NumericBall {
         return  [
             .menu(.inGameMenu) : { [weak self] in
                 guard let self = self else { return }
-                self.gameStatus.updateStatus(to: try self.receiver.receiveMenuSelect()) },
+                self.gameStatus.updateStatus(to: try self.receiver.receiveMenuSelect())
+            },
             .menu(.gameHistory) : {
                 [weak self] in
                 guard let self = self else { return }
-                self.getHistory() },
+                self.getHistory()
+            },
             .menu(.gameOff) : {
                 [weak self] in
                 guard let self = self else { return }
                 self.printer.printGameOffError()
+            },
+            .menu(.cheatMode) : {
+                [weak self] in
+                guard let self = self else { return }
+                self.toggleCheatMode()
+                self.printer.printCheatState(isOn: self.isCheatModeOn)
+                self.gameStatus.updateStatus(to: .menu(.inGameMenu))
             },
             .play(.gameStart) : {
                 [weak self] in
@@ -111,13 +121,15 @@ extension NumericBall {
     private func startBaseball() {
         gameProcessor.setCorrectAnswer(as: answerGenerator.generateAnswer())
         gameStatus.updateStatus(to: .play(.gamePlay))
+        if isCheatModeOn {
+            printer.printCorrectAnswer(answer: gameProcessor.gameData.correctAnswer)
+        }
     }
     //게임 진행 메서드
     private func runningBaseball() throws {
         printer.printAnswerRequest()//입력 요청 출력
-        
         if let receiveAnswer = try receiver.receiveAnswer() {
-            roundInfo = roundInfo.plusTryCount()
+            roundInfo = roundInfo.plusTryCount()//시도 횟수 증가
             checkHomerun(score: gameProcessor.gameProcess(receive: receiveAnswer))
         } else {//게임 진행 중 q를 누르면 게임 중단
             gameStatus.updateStatus(to: .play(.gameStop))
@@ -138,10 +150,10 @@ extension NumericBall {
     }
     //성적을 기록에 추가하는 메서드
     private func updateRanking() {
+        backToMenu()
+        guard isCheatModeOn == false else { return }//치트모드가 켜져있으면 기록 취소
         gameHistory.addGameHistory(reps: roundInfo.tryCount, round: roundInfo.round)//히스토리에 이번 회차와 반복 수 입력
         roundInfo = roundInfo.nextRound()//라운드 증가
-        
-        backToMenu()
     }
     //메인 메뉴로 돌아가는 동작
     private func backToMenu() {
@@ -152,5 +164,9 @@ extension NumericBall {
     private func pressAnyKeyToContinue() {
         printer.printContinuePressAnyKey()
         receiver.receiveContinue()
+    }
+    //치트모드 토글
+    private func toggleCheatMode() {
+        self.isCheatModeOn.toggle()
     }
 }

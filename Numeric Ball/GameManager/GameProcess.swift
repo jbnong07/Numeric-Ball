@@ -10,7 +10,7 @@
 //이름이 설정된 튜플을 반환함으로써 사용자가 정확하게 strike와 ball을 구분하여 사용할 수 있게 유도함
 
 final class GameProcess {
-    private var gameData: AnswerData = AnswerData()
+    private(set) var gameData: AnswerData = AnswerData()
     
     //정답 생성기로 생성된 값을 전달받는 메서드
     func setCorrectAnswer(as answer: NumToIndex) {
