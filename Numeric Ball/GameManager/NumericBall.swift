@@ -150,10 +150,11 @@ extension NumericBall {
     }
     //성적을 기록에 추가하는 메서드
     private func updateRanking() {
+        roundInfo = roundInfo.nextRound()//라운드 증가
         backToMenu()
         guard isCheatModeOn == false else { return }//치트모드가 켜져있으면 기록 취소
         gameHistory.addGameHistory(reps: roundInfo.tryCount, round: roundInfo.round)//히스토리에 이번 회차와 반복 수 입력
-        roundInfo = roundInfo.nextRound()//라운드 증가
+        
     }
     //메인 메뉴로 돌아가는 동작
     private func backToMenu() {
