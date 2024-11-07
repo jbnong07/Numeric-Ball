@@ -36,6 +36,8 @@ extension GameStatus {
                 return "\n< 게임 기록입니다! >\n"
             case .menu(.gameOff):
                 return "\n< 게임을 종료합니다! >\n"
+            case .menu(.cheatMode):
+                return "\n< 치트모드를 설정합니다! >\n"
             case .play(.gameStart):
                 return "\n< 새로운 정답 생성 중! >\n"
             case .play(.gamePlay):
@@ -54,6 +56,7 @@ extension GameStatus.Status {
         case inGameMenu
         case gameHistory
         case gameOff
+        case cheatMode
     }
     
     enum Play {
@@ -81,6 +84,8 @@ extension GameStatus.Status {
         case (.menu(.inGameMenu), .menu(.inGameMenu)):
             return true
         case (.menu(.gameHistory), .menu(.gameHistory)):
+            return true
+        case (.menu(.cheatMode), .menu(.cheatMode)):
             return true
         case (.play(.gamePlay), .play(.gamePlay)):
             return true

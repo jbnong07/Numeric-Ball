@@ -15,3 +15,5 @@ typealias StrikeAndBall = (strike: Int, ball: Int)
 //기록은 회차와 시도 횟수를 딕셔너리로 저장하여 가장 시도 횟수가 적은 순으로 랭킹을 표시할 수 있게 함
 //네이밍 수정 필요
 typealias Ranking = [Int:Int]
+
+

@@ -18,6 +18,8 @@ final class Receiver {
                 return .menu(.gameHistory)
             case "3", "q", "Q":
                 return .menu(.gameOff)
+            case "cheat":
+                return .menu(.cheatMode)
             default:
                 throw ErrorCase.inputInvalidMenu //알맞은 입력이 아닌 경우 에러처리
             }

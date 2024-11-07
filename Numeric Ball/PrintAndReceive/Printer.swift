@@ -56,4 +56,17 @@ final class Printer {
     func printGameOffError() {
         print("게임 종료에 실패했습니다!")
     }
+    
+    func printCheatState(isOn: Bool) {
+        print(isOn ? "< 치트가 활성화 되었습니다! >\n" : "< 치트가 비활성화 되었습니다! >\n")
+    }
+    
+    func printCorrectAnswer(answer: NumToIndex){
+        print("\n< 정답: [",terminator: "")
+        let sortedAnswer = answer.sorted { $0.value < $1.value }//인덱스 기준으로 정렬하기
+        for num in sortedAnswer{
+            print("\(num.key)",terminator: "")
+        }
+        print("] >")
+    }
 }
