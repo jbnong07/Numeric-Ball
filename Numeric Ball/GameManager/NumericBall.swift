@@ -141,6 +141,7 @@ extension NumericBall {
         switch receiveAnswer {
         case "q":
             gameStatus.updateStatus(to: .play(.gameStop))
+            roundInfo = roundInfo.nextRound()//라운드 증가
         case "hint":
             roundInfo = roundInfo.plusTryCount(to: 7)
             printer.printHint(answer: gameProcessor.gameData.correctAnswer)
